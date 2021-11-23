@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <script type="text/javascript" src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/adapter-latest.js"></script>
+</head>
+<body>
+    <div>
+        <span>rtspUrl:</span>
+        <input id="rtspUrlInput"  style="width:500px" placeholder="输入rtspUrl" value="rtsp://admin:cebon61332433@192.168.99.215">
+        <button id="playVideo" onclick="playVideo()">播放视频</button>
+    </div>
+    <div>
+        <input type="hidden" name="suuid" id="suuid" value="{{ .suuid }}">
+        <input type="hidden" name="port" id="port" value="{{ .port }}">
+        <input type="hidden" id="localSessionDescription" readonly="true">
+        <input type="hidden" id="remoteSessionDescription">
+        <div id="remoteVideos">
+            <video style="width:600px" id="videoElem" autoplay muted controls></video>
+        </div>
+        <button onclick="startSession()"> Start Session </button>
+        <div id="div"></div>
+    </div>
+</body>
+<script type="text/javascript" src="js/app_my.js"></script>
+</html>

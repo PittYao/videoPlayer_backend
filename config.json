@@ -1,0 +1,25 @@
+{
+  "server": {
+    "http_port": ":7778",
+    "https_port": ":7778"
+  },
+  "database": {
+    "driver": "mysql",
+    "url": ""
+  },
+  "streams": {
+  },
+  "webRTC": {
+    "openTurn": {
+      "url": "turn:47.96.153.195:3478",
+      "credential": "fanyao.666.com",
+      "username": "fanyao"
+    },
+    "privateTurn": {
+      "url": "",
+      "credential": "",
+      "username": ""
+    },
+    "enableTurn": false
+  }
+}
