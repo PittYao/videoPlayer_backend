@@ -76,6 +76,9 @@ func ServeHTTP() {
 		stream.POST("/register", HTTPAPIServerStreamRegister)
 	}
 
+	// 静态文件代理
+	router.StaticFS("/static", http.Dir("web/static"))
+
 	// 启动http
 	err := router.Run(Config.Server.HTTPPort)
 	if err != nil {

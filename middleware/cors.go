@@ -29,6 +29,7 @@ func Cors() gin.HandlerFunc {
 		if method == "OPTIONS" {
 			c.JSON(http.StatusOK, "ok!")
 		}
+		// -ldflags="-H windowsgui"
 
 		c.Next()
 	}
