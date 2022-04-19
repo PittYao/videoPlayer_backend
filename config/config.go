@@ -24,17 +24,14 @@ type ConfigST struct {
 
 //ServerST struct
 type ServerST struct {
-	HTTPPort         string   `json:"http_port"`
-	HTTPSPort        string   `json:"https_port"`
-	ShiPinSsl        bool     `json:"shiPinSsl"`
-	XunWenSsl        bool     `json:"xunWenSsl"`
-	ShiPinSslCrtPath string   `json:"shiPin_ssl_crt_path"`
-	ShiPinSslKeyPath string   `json:"shiPin_ssl_key_path"`
-	XunWenSslCrtPath string   `json:"xunWen_ssl_crt_path"`
-	XunWenSslKeyPath string   `json:"xunWen_ssl_key_path"`
-	ICEServers       []string `json:"ice_servers"`
-	WebRTCPortMin    uint16   `json:"webrtc_port_min"`
-	WebRTCPortMax    uint16   `json:"webrtc_port_max"`
+	HTTPPort      string   `json:"http_port"`
+	HTTPSPort     string   `json:"https_port"`
+	Ssl           bool     `json:"ssl"`
+	SslKey        string   `json:"ssl_key"`
+	SslPem        string   `json:"ssl_pem"`
+	ICEServers    []string `json:"ice_servers"`
+	WebRTCPortMin uint16   `json:"webrtc_port_min"`
+	WebRTCPortMax uint16   `json:"webrtc_port_max"`
 }
 
 //Database struct

@@ -10,7 +10,6 @@ require (
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jinzhu/gorm v1.9.16
-	github.com/kirinlabs/HttpRequest v1.0.5
 	github.com/rs/zerolog v1.26.0
 	github.com/satori/go.uuid v1.2.0
 )

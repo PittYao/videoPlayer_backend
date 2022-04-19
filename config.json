@@ -1,7 +1,10 @@
 {
   "server": {
     "http_port": ":7778",
-    "https_port": ":7778"
+    "https_port": ":7778",
+    "ssl": false,
+    "ssl_key": "./config/ssl/127.0.0.1-key.pem",
+    "ssl_pem": "./config/ssl/127.0.0.1.pem"
   },
   "database": {
     "driver": "mysql",

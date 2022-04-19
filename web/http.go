@@ -79,12 +79,18 @@ func ServeHTTP() {
 	// 静态文件代理
 	router.StaticFS("/static", http.Dir("web/static"))
 
-	// 启动http
-	err := router.Run(Config.Server.HTTPPort)
-	if err != nil {
-		log.Fatalln("启动http失败 ", err)
-	}
+	// 判断 http 或 https
 
+	if Config.Server.Ssl {
+		// 启动https
+		router.RunTLS(Config.Server.HTTPPort, Config.Server.SslPem, Config.Server.SslKey)
+	} else {
+		// 启动http
+		err := router.Run(Config.Server.HTTPPort)
+		if err != nil {
+			log.Fatalln("启动http失败 ", err)
+		}
+	}
 }
 
 //HTTPAPIServerStreamPlayer stream player
@@ -101,7 +107,6 @@ func HTTPAPIServerStreamPlayer(c *gin.Context) {
 
 //HTTPAPIServerStreamCodec stream codec
 func HTTPAPIServerStreamCodec(c *gin.Context) {
-	//c.Header("Access-Control-Allow-Origin", "*")
 	if Config.Ext(c.Param("uuid")) {
 		Config.RunIFNotRun(c.Param("uuid"))
 		codecs := Config.CoGe(c.Param("uuid"))
@@ -133,7 +138,6 @@ func HTTPAPIServerStreamCodec(c *gin.Context) {
 
 //HTTPAPIServerStreamWebRTC stream video over WebRTC
 func HTTPAPIServerStreamWebRTC(c *gin.Context) {
-	//c.Header("Access-Control-Allow-Origin", "*")
 	contentType := c.GetHeader("Content-Type")
 	fmt.Println(contentType)
 
@@ -210,7 +214,6 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 
 //HTTPAPIServerStreamRegister register
 func HTTPAPIServerStreamRegister(c *gin.Context) {
-	//c.Header("Access-Control-Allow-Origin", "*")
 	var rtspUrlDTO RtspUrlDTO
 	if err := c.ShouldBindJSON(&rtspUrlDTO); err != nil {
 		log.Println(err)
