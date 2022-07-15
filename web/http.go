@@ -6,6 +6,7 @@ import (
 	"github.com/deepch/vdk/av"
 	webrtc "github.com/deepch/vdk/format/webrtcv3"
 	"github.com/gin-gonic/gin"
+	"github.com/unrolled/secure"
 	"log"
 	"net/http"
 	"sort"
@@ -62,13 +63,28 @@ func (r *ResponseDTO) SuccessWithData(msg string, data interface{}) *ResponseDTO
 
 // 路由
 func ServeHTTP() {
-	router := gin.Default()
-	router.Use(middleware.Cors())
 
-	router.GET("/ping", pong)
+	httpsRouter := gin.Default()
+	httpRouter := gin.Default()
+
+	httpsRouter.Use(middleware.Cors())
+	httpRouter.Use(middleware.Cors())
+
+	httpsRouter.Use(TlsHandler())
+
+	httpsRouter.GET("/ping", pong)
+	httpRouter.GET("/ping", pong)
 
 	// 流处理
-	stream := router.Group("/stream")
+	httpsStream := httpsRouter.Group("/stream")
+	{
+		httpsStream.GET("/player/:uuid", HTTPAPIServerStreamPlayer)
+		httpsStream.POST("/receiver/:uuid", HTTPAPIServerStreamWebRTC)
+		httpsStream.GET("/codec/:uuid", HTTPAPIServerStreamCodec)
+		httpsStream.POST("/register", HTTPAPIServerStreamRegister)
+	}
+
+	stream := httpRouter.Group("/stream")
 	{
 		stream.GET("/player/:uuid", HTTPAPIServerStreamPlayer)
 		stream.POST("/receiver/:uuid", HTTPAPIServerStreamWebRTC)
@@ -77,19 +93,34 @@ func ServeHTTP() {
 	}
 
 	// 静态文件代理
-	router.StaticFS("/static", http.Dir("web/static"))
+	httpsRouter.StaticFS("/static", http.Dir("web/static"))
+	httpRouter.StaticFS("/static", http.Dir("web/static"))
 
 	// 判断 http 或 https
 
-	if Config.Server.Ssl {
-		// 启动https
-		router.RunTLS(Config.Server.HTTPPort, Config.Server.SslPem, Config.Server.SslKey)
-	} else {
-		// 启动http
-		err := router.Run(Config.Server.HTTPPort)
+	// 启动https
+	go httpsRouter.RunTLS(Config.Server.HTTPSPort, Config.Server.SslPem, Config.Server.SslKey)
+
+	// 启动http
+	err := httpRouter.Run(Config.Server.HTTPPort)
+	if err != nil {
+		log.Fatalln("启动http失败 ", err)
+	}
+}
+
+//  -ldflags="-H windowsgui"
+
+func TlsHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		secureMiddleware := secure.New(secure.Options{
+			SSLRedirect: true,
+			SSLHost:     Config.Server.HTTPSPort,
+		})
+		err := secureMiddleware.Process(c.Writer, c.Request)
 		if err != nil {
-			log.Fatalln("启动http失败 ", err)
+			return
 		}
+		c.Next()
 	}
 }
 

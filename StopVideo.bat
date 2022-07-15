@@ -1,1 +1,1 @@
-taskkill /F /IM videoPlayer.exe
+taskkill /F /IM VideoPlayer.exe

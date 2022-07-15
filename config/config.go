@@ -26,7 +26,6 @@ type ConfigST struct {
 type ServerST struct {
 	HTTPPort      string   `json:"http_port"`
 	HTTPSPort     string   `json:"https_port"`
-	Ssl           bool     `json:"ssl"`
 	SslKey        string   `json:"ssl_key"`
 	SslPem        string   `json:"ssl_pem"`
 	ICEServers    []string `json:"ice_servers"`

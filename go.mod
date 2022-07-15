@@ -12,4 +12,5 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/rs/zerolog v1.26.0
 	github.com/satori/go.uuid v1.2.0
+	github.com/unrolled/secure v1.11.0
 )
