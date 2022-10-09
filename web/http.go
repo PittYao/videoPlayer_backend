@@ -90,6 +90,7 @@ func ServeHTTP() {
 		stream.POST("/receiver/:uuid", HTTPAPIServerStreamWebRTC)
 		stream.GET("/codec/:uuid", HTTPAPIServerStreamCodec)
 		stream.POST("/register", HTTPAPIServerStreamRegister)
+		stream.GET("/close/:ssuid", HTTPAPIServerStreamClose)
 	}
 
 	// 静态文件代理
@@ -124,7 +125,7 @@ func TlsHandler() gin.HandlerFunc {
 	}
 }
 
-//HTTPAPIServerStreamPlayer stream player
+// HTTPAPIServerStreamPlayer stream player
 func HTTPAPIServerStreamPlayer(c *gin.Context) {
 	_, all := Config.List()
 	sort.Strings(all)
@@ -136,7 +137,7 @@ func HTTPAPIServerStreamPlayer(c *gin.Context) {
 	})
 }
 
-//HTTPAPIServerStreamCodec stream codec
+// HTTPAPIServerStreamCodec stream codec
 func HTTPAPIServerStreamCodec(c *gin.Context) {
 	if Config.Ext(c.Param("uuid")) {
 		Config.RunIFNotRun(c.Param("uuid"))
@@ -167,7 +168,7 @@ func HTTPAPIServerStreamCodec(c *gin.Context) {
 	}
 }
 
-//HTTPAPIServerStreamWebRTC stream video over WebRTC
+// HTTPAPIServerStreamWebRTC stream video over WebRTC
 func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 	contentType := c.GetHeader("Content-Type")
 	fmt.Println(contentType)
@@ -205,6 +206,7 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 	}
 	muxerWebRTC := webrtc.NewMuxer(webrtc.Options{ICEServers: Config.GetICEServers(), PortMin: Config.GetWebRTCPortMin(), PortMax: Config.GetWebRTCPortMax()})
 	answer, err := muxerWebRTC.WriteHeader(codecs, data)
+	WebRTCMap[ssuid] = muxerWebRTC
 	if err != nil {
 		log.Println("WriteHeader", err)
 		return
@@ -243,7 +245,7 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 	}()
 }
 
-//HTTPAPIServerStreamRegister register
+// HTTPAPIServerStreamRegister register
 func HTTPAPIServerStreamRegister(c *gin.Context) {
 	var rtspUrlDTO RtspUrlDTO
 	if err := c.ShouldBindJSON(&rtspUrlDTO); err != nil {
@@ -255,16 +257,16 @@ func HTTPAPIServerStreamRegister(c *gin.Context) {
 	var responseDTO ResponseDTO
 	log.Println("注册rtspUrl:", rtspUrlDTO.RtspUrl)
 
-	// 检测是否注册过,注册过返回id
+	/*// 检测是否注册过,注册过返回id
 	cuuid, ok := RtspMap[rtspUrlDTO.RtspUrl]
 	if ok {
 		log.Println("该流已经注册过 cuuid:", cuuid)
 		c.JSON(200, responseDTO.SuccessWithData("注册成功，等待播放", cuuid))
 		return
-	}
+	}*/
 
 	// 为url生成唯一的id
-	cuuid = PseudoUUID()
+	cuuid := PseudoUUID()
 	log.Println("生成rtspUrl唯一id:", cuuid)
 
 	streamST := StreamST{
@@ -281,6 +283,29 @@ func HTTPAPIServerStreamRegister(c *gin.Context) {
 
 	c.JSON(200, responseDTO.SuccessWithData("注册成功，等待播放", cuuid))
 	return
+
+}
+
+// HTTPAPIServerStreamClose close stream
+func HTTPAPIServerStreamClose(c *gin.Context) {
+	var responseDTO ResponseDTO
+
+	ssuid := c.Param("ssuid")
+	if ssuid == "" {
+		c.JSON(400, responseDTO.Success("ssuid参数不能为空"))
+		return
+	}
+
+	muxerWebRTC, ok := WebRTCMap[ssuid]
+	if !ok {
+		c.JSON(200, responseDTO.Success("该流不存在"))
+		return
+	}
+	// 关闭流
+
+	cid, _ := Config.ClAd(ssuid)
+	defer Config.ClDe(ssuid, cid)
+	defer muxerWebRTC.Close()
 
 }
 

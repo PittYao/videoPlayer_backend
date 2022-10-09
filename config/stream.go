@@ -53,9 +53,13 @@ func RTSPWorker(name, url string, OnDemand, disableAudio bool) error {
 	for {
 		select {
 		case <-clientTest.C:
-			if OnDemand && !Config.HasViewer(name) {
-				return ErrorStreamExitNoViewer
+			if OnDemand {
+				clientTest.Reset(20 * time.Second) //add clientTest calculator reset
+				if !Config.HasViewer(name) {
+					return ErrorStreamExitNoViewer
+				}
 			}
+
 		case <-keyTest.C:
 			return ErrorStreamExitNoVideoOnStream
 		case signals := <-RTSPClient.Signals:

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/deepch/vdk/av"
+	webrtc "github.com/deepch/vdk/format/webrtcv3"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"github.com/rs/zerolog/log"
@@ -13,7 +14,7 @@ import (
 	"time"
 )
 
-//ConfigST struct
+// ConfigST struct
 type ConfigST struct {
 	mutex    sync.RWMutex
 	Server   ServerST            `json:"server"`
@@ -22,7 +23,7 @@ type ConfigST struct {
 	WebRTC   WebRTC              `json:"webRTC"`
 }
 
-//ServerST struct
+// ServerST struct
 type ServerST struct {
 	HTTPPort      string   `json:"http_port"`
 	HTTPSPort     string   `json:"https_port"`
@@ -33,13 +34,13 @@ type ServerST struct {
 	WebRTCPortMax uint16   `json:"webrtc_port_max"`
 }
 
-//Database struct
+// Database struct
 type Database struct {
 	Driver string `json:"driver"`
 	Url    string `json:"url"`
 }
 
-//StreamST struct
+// StreamST struct
 type StreamST struct {
 	URL          string `json:"url"`
 	Status       bool   `json:"status"`
@@ -51,8 +52,9 @@ type StreamST struct {
 }
 
 var RtspMap = map[string]string{}
+var WebRTCMap = map[string]*webrtc.Muxer{}
 
-//WebRTC struct
+// WebRTC struct
 type WebRTC struct {
 	OpenTurn    OpenTurn    `json:"openTurn"`
 	PrivateTurn PrivateTurn `json:"privateTurn"`
@@ -195,7 +197,7 @@ func (element *ConfigST) ClDe(suuid, cuuid string) {
 	delete(element.Streams[suuid].Cl, cuuid)
 }
 
-//初始化配置文件 和 数据库连接
+// 初始化配置文件 和 数据库连接
 var Config, Db = loadConfig()
 
 func loadConfig() (*ConfigST, *gorm.DB) {
