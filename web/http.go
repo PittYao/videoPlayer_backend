@@ -220,7 +220,7 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 		defer Config.ClDe(ssuid, cid)
 		defer muxerWebRTC.Close()
 		var videoStart bool
-		noVideo := time.NewTimer(10 * time.Second)
+		noVideo := time.NewTimer(5 * time.Second)
 		for {
 			select {
 			case <-noVideo.C:
@@ -228,7 +228,7 @@ func HTTPAPIServerStreamWebRTC(c *gin.Context) {
 				return
 			case pck := <-ch:
 				if pck.IsKeyFrame || AudioOnly {
-					noVideo.Reset(10 * time.Second)
+					noVideo.Reset(5 * time.Second)
 					videoStart = true
 				}
 				if !videoStart && !AudioOnly {

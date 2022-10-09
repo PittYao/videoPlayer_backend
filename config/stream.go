@@ -37,7 +37,7 @@ func RTSPWorkerLoop(name, url string, OnDemand, disableAudio bool) {
 }
 func RTSPWorker(name, url string, OnDemand, disableAudio bool) error {
 	keyTest := time.NewTimer(20 * time.Second)
-	clientTest := time.NewTimer(20 * time.Second)
+	clientTest := time.NewTimer(5 * time.Second)
 	RTSPClient, err := rtspv2.Dial(rtspv2.RTSPClientOptions{URL: url, DisableAudio: disableAudio, DialTimeout: 3 * time.Second, ReadWriteTimeout: 3 * time.Second, Debug: false})
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func RTSPWorker(name, url string, OnDemand, disableAudio bool) error {
 		select {
 		case <-clientTest.C:
 			if OnDemand {
-				clientTest.Reset(20 * time.Second) //add clientTest calculator reset
+				clientTest.Reset(5 * time.Second) //add clientTest calculator reset
 				if !Config.HasViewer(name) {
 					return ErrorStreamExitNoViewer
 				}
