@@ -90,7 +90,6 @@ func ServeHTTP() {
 		stream.POST("/receiver/:uuid", HTTPAPIServerStreamWebRTC)
 		stream.GET("/codec/:uuid", HTTPAPIServerStreamCodec)
 		stream.POST("/register", HTTPAPIServerStreamRegister)
-		stream.GET("/close/:ssuid", HTTPAPIServerStreamClose)
 	}
 
 	// 静态文件代理
@@ -283,29 +282,6 @@ func HTTPAPIServerStreamRegister(c *gin.Context) {
 
 	c.JSON(200, responseDTO.SuccessWithData("注册成功，等待播放", cuuid))
 	return
-
-}
-
-// HTTPAPIServerStreamClose close stream
-func HTTPAPIServerStreamClose(c *gin.Context) {
-	var responseDTO ResponseDTO
-
-	ssuid := c.Param("ssuid")
-	if ssuid == "" {
-		c.JSON(400, responseDTO.Success("ssuid参数不能为空"))
-		return
-	}
-
-	muxerWebRTC, ok := WebRTCMap[ssuid]
-	if !ok {
-		c.JSON(200, responseDTO.Success("该流不存在"))
-		return
-	}
-	// 关闭流
-
-	cid, _ := Config.ClAd(ssuid)
-	defer Config.ClDe(ssuid, cid)
-	defer muxerWebRTC.Close()
 
 }
 
